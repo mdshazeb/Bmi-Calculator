@@ -1,111 +1,59 @@
-
-
-
-
-import React, { Component } from 'react';
+import { isFocusable } from '@testing-library/user-event/dist/utils';
+import React, { Component ,useState,useEffect} from 'react';
 import './App.css';
-
-class App extends Component {
-
-  constructor(props) {
-     super(props);
-     this.state = { name: 'Guest', weight: 90, height: 180, bmi: 27, message: '', optimalweight: '', time: new Date().toLocaleTimeString() };
-     this.submitMe = this.submitMe.bind(this);
-     this.heightchange = this.heightchange.bind(this);
-     this.weightchange = this.weightchange.bind(this);
-     this.change = this.change.bind(this);  
-     this.ticker = this.ticker.bind(this); 
-     this.blur = this.blur.bind(this); 
-     this.calculateBMI = this.calculateBMI.bind(this); 
-  }
-
-
-  heightchange(e){
-    this.setState({height: e.target.value});
-    e.preventDefault();
-  }
-
-  blur(e){
-   this.calculateBMI();
-  }
-   weightchange(e){
-    this.setState({weight: e.target.value});
-    e.preventDefault();
-  }
-
-  calculateBMI(){
-
-      var heightSquared = (this.state.height/100  * this.state.height/100);
-      var bmi = this.state.weight / heightSquared;
-      var low = Math.round(18.5 * heightSquared);                                                         
-      var high = Math.round(24.99 * heightSquared);    
-      var message = "";
-      if( bmi >= 18.5  && bmi <= 24.99 ){
-          message = "You are in a healthy weight range";
-      }
-      else if(bmi >= 25 && bmi <= 29.9){
-        message = "You are overweight";
-      }
-      else if(bmi >= 30){
-          message ="You are obese";
-      }
-      else if(bmi < 18.5){
-        message = "You are under weight";
-      }
-      this.setState({message: message});  
-      this.setState({optimalweight: "Your suggested weight range is between "+low+ " - "+high});    
-      this.setState({bmi: Math.round(bmi * 100) / 100});   
-
-  }
-
-  submitMe(e) {
-     e.preventDefault();
-     this.calculateBMI();
-  }
-
-  ticker() {
-    this.setState({time: new Date().toLocaleTimeString()})
-  }
  
-  componentDidMount(){
-    setInterval(this.ticker, 60000);
+
+function App(){
+ const [height,setHeight]=useState(0)
+ const [weight,setWeight]=useState(0)
+ const [Bmi,setBmi]=useState(0)
+ const [isValue,setisValue]=useState(false)
+ const [msg,setMsg]=useState("")
+
+ useEffect(()=>{
+  if(Bmi<18.5)
+     setMsg("you are under weight")
+
+     else if(Bmi>=18.5 && Bmi < 25)
+     setMsg("you are Normal Weight")
+
+     else if(Bmi>=25 && Bmi <=29.9)
+     setMsg("you are Over Weight")
+
+     else
+     setMsg("you are Obese")
+
+ },[Bmi])
+  function update(){
+    if(height>0 && weight>0)
+    {setBmi((weight*100**2/(height**2)).toFixed(1))
+     setisValue(true)
+
+    
   }
 
-  change(e){
-    e.preventDefault();
-    console.log(e.target);
-    this.setState({name: e.target.value});
+    else
+    alert("give valid input")
   }
 
-  render() {
-    return (
-      <div className="App">
-        <div className="App-header">
-          <h2>BMI Calculator</h2>
+  return(
+    <div className='main'>
+      <h1 className='heading'>BMI Tracker</h1>
+
+      <p className="wh">Weight (in kg)</p>
+      <input type="number" className="weight" placeholder="50" onChange={(e)=>setWeight(e.target.value)}></input>
+      <p className="wh2">Height (in cm)</p>
+      <input type="number" className="height" placeholder="176" onChange={(e)=>setHeight(e.target.value)}></input>
+      <div className="container">
+        <button className="btn" onClick={update}>Calculate BMI</button>
         </div>
-          <form onSubmit={this.submitMe}>
-            <label>
-              Please enter your name
-            </label>
-            <input type="text" name="name" value={this.state.name} onBlur={this.blur} onChange={this.change}   />
-             <label>
-             Enter your height in cm: 
-            </label>
-            <input type="text" name="height" value={this.state.height} onBlur={this.blur} onChange={this.heightchange}   />
-             <label>
-             Enter your weight in kg : 
-            </label>
-            <input type="text" name="weight" value={this.state.weight} onChange={this.weightchange}    />
-            <label>{this.state.checked} Hello {this.state.name}, How are you my friend? It's currently  {this.state.time} where you are living. Your BMI is {this.state.bmi} </label>
-              <label>{this.state.message}</label>
-              <label>{this.state.optimalweight}</label>
-             
-            <input type="submit" value="Submit"/>
-          </form>
-      
-      </div>
-    );
-  }
+      {isValue? <div className='parent'><div className="container2"><h2>Date is {new Date().toLocaleString().split(',')[0]}</h2><h2>Your Bmi is {Bmi}</h2><h2>{msg}</h2></div></div>:null}
+
+    </div>  
+  )
+
 }
 
-export default App;
+
+
+export default App
